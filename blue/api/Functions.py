@@ -10,7 +10,7 @@ from sklearn import tree
 from sklearn.metrics import accuracy_score
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
-
+import random 
 
 df=pd.DataFrame()
 data=pd.DataFrame()
@@ -111,21 +111,28 @@ def chk_col(df):
         return False,None,None
         
 def chcking():
-    global a
     try:
+        global a
+        global msgs
+        global count
         chk,X,y=chk_col(data)
         print(chk)
         if chk== True:
+            count=0
             print(X.head())
             print(y)
             a=Train_model(X,y)
+            
+            msgs=func_improve(X,y)
+            
             find_model()
+            
             return{"status":"200","msg":"Ok"}
         else:
             return{"error":"your data shape is not correct"}
-            
+        
     except Exception as e:
-        print("masla")
+        
         dic2={"error":"your data shape is not correct","msg":str(e)}
         return dic2
 
@@ -148,34 +155,58 @@ def Train_model(X,y):
     accuracy2=accuracy_score(y_test, y_pred_svm)
 
     ##########################################
-    model_rdm = RandomForestClassifier(n_estimators = 10, criterion = 'entropy') 
+    # model_rdm = RandomForestClassifier(n_estimators = 10, criterion = 'entropy') 
 							
-    model_rdm.fit(X_train, y_train) 
-    y_pred_rdm = model_rdm.predict(X_test)
+    # model_rdm.fit(X_train, y_train) 
+    # y_pred_rdm = model_rdm.predict(X_test)
 
-    accuracy3=accuracy_score(y_test, y_pred_rdm)
-    dic={accuracy:model_decision,accuracy2:model_svm,accuracy3:model_rdm}
+    #accuracy3=accuracy_score(y_test, y_pred_rdm)
+    dic={accuracy:model_decision,accuracy2:model_svm}
     
-    my_list=[accuracy,accuracy2,accuracy3]
+    my_list=[accuracy,accuracy2]
     print(my_list)
     my_list.sort(reverse=True)
     my_model=dic[my_list[0]]
     print(my_model)
     return my_list[0]
 
+def func_improve(X,y):
+    z=X["Number of complaints (BCL)"][0]
+    y_arr=X["Incoming Header lines Count"].unique()
+    y_list=y_arr.tolist()
+    print(y_list)
+    msg_size=X["Message Size"].unique()
+    msg_list=msg_size.tolist()
+    model=find_model()
+    list_num=[]
+    for num in y_list:
+        for msgs in msg_list:
+            pred=model.predict([[msgs,num,z]])
+            if pred==1:
+                #print(msgs,num)
+                list_num.append([msgs,num])
+    return list_num
+
+
 
 def find_model():
     model=dic[a]
     return model
+
+def count_num():
+    count=random.randint(0,50)
+    return count
+
 def prediction(msg,msg1,msg2):
     try:
         model=find_model()
-        print(model)
+       
         pred=model.predict([[msg,msg1,msg2]])
         if pred==1:
             return{"Result":"Yes"}
         elif pred==0:
-            return{"Result":"No"}
+            count=count_num()
+            return{"Result":"No","Msg Size":msgs[count][0],"Header file size":msgs[count][1]}
     except Exception as e:
         dic2={"error":"your data shape is not correct","msg":str(e)}
         return dic2
