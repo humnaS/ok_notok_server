@@ -206,7 +206,7 @@ def prediction(msg,msg1,msg2):
             return{"Result":"Yes"}
         elif pred==0:
             count=count_num()
-            return{"Result":"No","Msg Size":msgs[count][0],"Header file size":msgs[count][1]}
+            return{"Result":"No","Message Size":msgs[count][0],"Incoming Header lines Count":msgs[count][1]}
     except Exception as e:
         dic2={"error":"your data shape is not correct","msg":str(e)}
         return dic2
