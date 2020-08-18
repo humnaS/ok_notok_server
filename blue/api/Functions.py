@@ -127,7 +127,7 @@ def chcking():
             
             find_model()
             
-            return{"status":"200","msg":"Ok"}
+            return{"status":"200","List":msgs}
         else:
             return{"error":"your data shape is not correct"}
         
