@@ -18,15 +18,18 @@ my_df=pd.DataFrame()
 dic=dict()
 name_col=['Message Size', 'Incoming Header lines Count', 'Sender-IP','Number of complaints (BCL)', 'Inbox']
 
-def get_file(my_file):
+def get_file(my_file,file_path):
     global df
    
     try:
         print("hello from get file")
         file_rec = my_file
-      
-       
-        df = pd.read_csv(file_rec.stream,delimiter=";")
+        print(file_rec)
+        deli=detectDelimiter(file_path)
+        
+        print("The delimeter is ",deli)
+
+        df = pd.read_csv(file_path,delimiter=deli)
         
         hold_data()
         
@@ -39,8 +42,10 @@ def get_file(my_file):
 
             df = pd.read_excel(file_rec.stream)
       
-          
+            hold_data()
+            print(df.head())
             retJson = {"status":200,"msg":"ok"}
+            
             return True
         except Exception as e:
             try:
@@ -52,14 +57,28 @@ def get_file(my_file):
                 
                 hold_data()
                 print(df.head())
+                print("catch my file",file_rec)
                 retJson = {"status":200,"msg":"ok"}
                 return True
                             
                 
             except Exception as e:
-                retJson = {"status":301,"msg":"This file format is not supported"}
+                retJson = {"status":301,"msg":"This file format is not supported","msg1":str(e)}
+                print(retJson)
             return False
 
+def detectDelimiter(csvFile):
+    print(csvFile)
+    with open(csvFile, 'r') as myCsvfile:
+        header=myCsvfile.readline()
+        if header.find(";")!=-1:
+            return ";"
+        if header.find(",")!=-1:
+           
+            return ","
+    #default delimiter (MS Office export)
+   
+    return ";"
 
 def list_contains(List1, List2):
     count=0

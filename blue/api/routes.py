@@ -24,6 +24,8 @@ df = None
 
 from Functions import get_file,chcking,prediction
 
+path01=dirname +"/api/tmp"
+
 
 class hello(Resource):
     def get(self):
@@ -34,13 +36,23 @@ class hello(Resource):
 class data(Resource):
     def post(self):
         file_rec = request.files['file']
-        print("hello")
-        chk=get_file(file_rec)
+        filename = secure_filename(file_rec.filename) 
+        print(filename)
+        print(path01)
+        file_path =  path01 +"/" + filename
+        file_rec.save(file_path)
+        print("file saved here: ",file_path)
+        
+
+
+        chk=get_file(file_rec,file_path)
         if chk==True:
             ret= chcking()
+            os.remove(file_path)
             return jsonify(ret)
         else:
             retJson = {"status":301,"msg":"This file format is not supported"}
+            os.remove(file_path)
             return jsonify(retJson)
 
 class Prediction(Resource):
